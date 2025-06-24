@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Track your gym sessions and see what each workout costs">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://amureki.me/sweatbucks">
+    <meta property="og:title" content="SweatBucks">
+    <meta property="og:description" content="Track your gym sessions and see what each workout costs">
+    <meta property="og:image" content="https://amureki.me/sweatbucks/assets/sweatbucks-og.svg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://amureki.me/sweatbucks">
+    <meta property="twitter:title" content="SweatBucks">
+    <meta property="twitter:description" content="Track your gym sessions and see what each workout costs">
+    <meta property="twitter:image" content="https://amureki.me/sweatbucks/assets/sweatbucks-og.svg">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="SweatBucks">
+    <title>SweatBucks</title>
+    <script defer src="https://umami.mr3k.de/script.js" data-website-id="f9969ea9-2804-4e29-82f4-bddb955b68a4"></script>
+    <link rel="manifest" href="assets/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9IjE2IiB5PSIyMCIgZm9udC1mYW1pbHk9IkhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TQjwvdGV4dD4KPC9zdmc+Cg==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #ccc;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 15px 10px;
+            border: 1px solid #333;
+        }
+        
+        .stat-number {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.8em;
+            color: #ccc;
+        }
+        
+        .subscription-input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            font-family: inherit;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .subscription-input:focus {
+            outline: none;
+            border-color: #666;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #666;
+        }
+        
+        button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #444;
+            color: #fff;
+        }
+        
+        .sessions-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .session-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .motivational {
+            background: #111;
+            padding: 15px;
+            text-align: center;
+            margin-top: 20px;
+            border: 1px solid #333;
+        }
+        
+        .motivational h3 {
+            margin-bottom: 10px;
+        }
+        
+        .remove-btn {
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0;
+        }
+        
+        .remove-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SWEATBUCKS</h1>
+            <p style="color: #666; font-size: 0.9em; margin-top: 5px;">Track your gym sessions and see what each workout costs</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>This Month</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSessions">0</div>
+                        <div class="stat-label">Session(s)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="costPerSession">0</div>
+                        <div class="stat-label">Cost/Session (€)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">
+                            <input type="number" id="subscription" class="subscription-input" placeholder="79" step="1" style="background: transparent; border: none; text-align: center; padding: 0; margin: 0; width: 100%; font-size: inherit;">
+                        </div>
+                        <div class="stat-label">Monthly Cost (€)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <input type="date" id="sessionDate" style="flex: 1;">
+                    <button onclick="addSession()">Add</button>
+                </div>
+            </div>
+            
+            <div class="section" id="recentSessionsSection" style="display: none;">
+                <h2>Recent Sessions</h2>
+                <div class="sessions-list" id="sessionsList"></div>
+            </div>
+            
+            <div class="motivational" id="motivational" style="display: none;">
+                <h3>🎉 Great job!</h3>
+                <p id="motivationalText"></p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-bottom: 20px;">
+            <a href="https://amureki.me" style="color: #666; text-decoration: none; font-size: 0.8em;">amureki.me</a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with today's date
+        document.getElementById('sessionDate').valueAsDate = new Date();
+        
+        // Load data on page load
+        window.onload = function() {
+            loadData();
+            updateStats();
+        };
+        
+        function saveSubscription() {
+            const subscription = document.getElementById('subscription').value;
+            if (subscription && subscription > 0) {
+                localStorage.setItem('uscSubscription', subscription);
+                updateStats();
+            }
+        }
+        
+        // Auto-save subscription on input
+        document.getElementById('subscription').addEventListener('input', saveSubscription);
+        
+        function addSession() {
+            const date = document.getElementById('sessionDate').value;
+            
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+            
+            // Get existing sessions
+            let sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            
+            // Add new session
+            sessions.push({
+                date: date,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('uscSessions', JSON.stringify(sessions));
+            
+            // Reset form
+            document.getElementById('sessionDate').valueAsDate = new Date();
+            
+            // Update display
+            updateStats();
+            displaySessions();
+            showMotivation();
+        }
+        
+        function loadData() {
+            // Load subscription
+            const subscription = localStorage.getItem('uscSubscription');
+            if (subscription) {
+                document.getElementById('subscription').value = subscription;
+            }
+            
+            displaySessions();
+        }
+        
+        function updateStats() {
+            const subscription = parseFloat(localStorage.getItem('uscSubscription') || 0);
+            const sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            
+            // Filter sessions for current month
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const currentMonthSessions = sessions.filter(session => {
+                const sessionDate = new Date(session.date);
+                return sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear;
+            });
+            
+            const totalSessions = currentMonthSessions.length;
+            const costPerSession = totalSessions > 0 ? (subscription / totalSessions) : 0;
+            
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('costPerSession').textContent = Math.round(costPerSession);
+        }
+        
+        function displaySessions() {
+            const sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            const sessionsList = document.getElementById('sessionsList');
+            const recentSessionsSection = document.getElementById('recentSessionsSection');
+            
+            if (sessions.length === 0) {
+                recentSessionsSection.style.display = 'none';
+                return;
+            }
+            
+            recentSessionsSection.style.display = 'block';
+            
+            // Sort sessions by date (newest first)
+            sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Show last 10 sessions
+            const recentSessions = sessions.slice(0, 10);
+            
+            sessionsList.innerHTML = recentSessions.map(session => `
+                <div class="session-item">
+                    <div>${new Date(session.date).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                    })}</div>
+                    <button onclick="removeSession('${session.timestamp}')" class="remove-btn">Remove</button>
+                </div>
+            `).join('');
+        }
+        
+        function removeSession(timestamp) {
+            let sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            sessions = sessions.filter(session => session.timestamp !== timestamp);
+            localStorage.setItem('uscSessions', JSON.stringify(sessions));
+            updateStats();
+            displaySessions();
+        }
+        
+        function showMotivation() {
+            const sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const currentMonthSessions = sessions.filter(session => {
+                const sessionDate = new Date(session.date);
+                return sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear;
+            });
+            
+            const totalSessions = currentMonthSessions.length;
+            const motivational = document.getElementById('motivational');
+            const motivationalText = document.getElementById('motivationalText');
+            
+            if (totalSessions > 0) {
+                motivational.style.display = 'block';
+                
+                let message = '';
+                if (totalSessions === 1) {
+                    message = "You've started your fitness journey this month! 🚀";
+                } else if (totalSessions <= 5) {
+                    message = `${totalSessions} sessions down! You're building momentum! 💪`;
+                } else if (totalSessions <= 10) {
+                    message = `${totalSessions} sessions! You're on fire! 🔥`;
+                } else {
+                    message = `${totalSessions} sessions! You're a fitness champion! 🏆`;
+                }
+                
+                motivationalText.textContent = message;
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    motivational.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./assets/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

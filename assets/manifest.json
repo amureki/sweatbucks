@@ -1,0 +1,22 @@
+{
+  "name": "SweatBucks",
+  "short_name": "SweatBucks",
+  "description": "Track your gym sessions and see what each workout costs",
+  "start_url": "../index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "./icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
