@@ -47,6 +47,26 @@
         .container {
             max-width: 500px;
             margin: 0 auto;
+            position: relative;
+        }
+        
+        .pull-refresh {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: top 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .pull-refresh.show {
+            top: 20px;
         }
         
         .header {
@@ -187,9 +207,34 @@
         .remove-btn:hover {
             background: #555;
         }
+        
+        .month-group {
+            margin-bottom: 20px;
+        }
+        
+        .month-header {
+            background: #111;
+            padding: 10px;
+            border: 1px solid #333;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .month-title {
+            font-size: 1em;
+            color: #fff;
+        }
+        
+        .month-stats {
+            font-size: 0.8em;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
+    <div class="pull-refresh" id="pullRefresh">Pull to refresh</div>
     <div class="container">
         <div class="header">
             <h1>SWEATBUCKS</h1>
@@ -225,7 +270,7 @@
             </div>
             
             <div class="section" id="recentSessionsSection" style="display: none;">
-                <h2>Recent Sessions</h2>
+                <h2>Sessions by Month</h2>
                 <div class="sessions-list" id="sessionsList"></div>
             </div>
             
@@ -241,6 +286,53 @@
     </div>
 
     <script>
+        // Pull to refresh functionality
+        let startY = 0;
+        let pullDistance = 0;
+        const pullRefreshElement = document.getElementById('pullRefresh');
+        const threshold = 80;
+        
+        document.addEventListener('touchstart', function(e) {
+            if (window.scrollY === 0) {
+                startY = e.touches[0].pageY;
+            }
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (window.scrollY === 0 && startY > 0) {
+                const currentY = e.touches[0].pageY;
+                pullDistance = currentY - startY;
+                
+                if (pullDistance > 0) {
+                    e.preventDefault();
+                    const progress = Math.min(pullDistance / threshold, 1);
+                    pullRefreshElement.style.top = `${-60 + (progress * 80)}px`;
+                    
+                    if (pullDistance > threshold) {
+                        pullRefreshElement.textContent = 'Release to refresh';
+                        pullRefreshElement.classList.add('show');
+                    } else {
+                        pullRefreshElement.textContent = 'Pull to refresh';
+                        pullRefreshElement.classList.remove('show');
+                    }
+                }
+            }
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            if (pullDistance > threshold) {
+                pullRefreshElement.textContent = 'Refreshing...';
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+            } else {
+                pullRefreshElement.style.top = '-60px';
+                pullRefreshElement.classList.remove('show');
+            }
+            startY = 0;
+            pullDistance = 0;
+        });
+
         // Initialize with today's date
         document.getElementById('sessionDate').valueAsDate = new Date();
         
@@ -321,6 +413,7 @@
         
         function displaySessions() {
             const sessions = JSON.parse(localStorage.getItem('uscSessions') || '[]');
+            const subscription = parseFloat(localStorage.getItem('uscSubscription') || 0);
             const sessionsList = document.getElementById('sessionsList');
             const recentSessionsSection = document.getElementById('recentSessionsSection');
             
@@ -334,19 +427,50 @@
             // Sort sessions by date (newest first)
             sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            // Show last 10 sessions
-            const recentSessions = sessions.slice(0, 10);
+            // Group sessions by month
+            const sessionsByMonth = {};
+            sessions.forEach(session => {
+                const date = new Date(session.date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!sessionsByMonth[monthKey]) {
+                    sessionsByMonth[monthKey] = [];
+                }
+                sessionsByMonth[monthKey].push(session);
+            });
             
-            sessionsList.innerHTML = recentSessions.map(session => `
-                <div class="session-item">
-                    <div>${new Date(session.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                    })}</div>
-                    <button onclick="removeSession('${session.timestamp}')" class="remove-btn">Remove</button>
-                </div>
-            `).join('');
+            // Generate HTML for each month
+            let html = '';
+            Object.keys(sessionsByMonth).sort().reverse().forEach(monthKey => {
+                const monthSessions = sessionsByMonth[monthKey];
+                const [year, month] = monthKey.split('-');
+                const monthName = new Date(year, month - 1, 1).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+                
+                const sessionCount = monthSessions.length;
+                const costPerSession = subscription > 0 ? Math.round(subscription / sessionCount) : 0;
+                
+                html += `
+                    <div class="month-group">
+                        <div class="month-header">
+                            <div class="month-title">${monthName}</div>
+                            <div class="month-stats">${sessionCount} sessions • €${costPerSession}/session</div>
+                        </div>
+                        ${monthSessions.map(session => `
+                            <div class="session-item">
+                                <div>${new Date(session.date).toLocaleDateString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                })}</div>
+                                <button onclick="removeSession('${session.timestamp}')" class="remove-btn">Remove</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            sessionsList.innerHTML = html;
         }
         
         function removeSession(timestamp) {
